@@ -5,7 +5,6 @@ import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
-
 from flask import Flask, jsonify
 
 #################################################
@@ -16,6 +15,7 @@ engine = create_engine("sqlite:///hawaii.sqlite")
 
 # reflect an existing database into aR new model
 Base = automap_base()
+
 # reflect the tables
 Base.prepare(engine, reflect=True)
 
@@ -63,7 +63,6 @@ def precipitation():
         precipitation.append(precip_dict)
 
     return jsonify(precipitation)
-
 
 # Define what to do when a user hits the stations route
 @app.route("/api/v1.0/stations")
@@ -114,7 +113,7 @@ def start_date(start):
     temp_data = session.query(Measurement.station, Measurement.date, func.min(Measurement.tobs), 
                     func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
 
-    # Create a dictionary and append list of stations data
+    # Create a dictionary and append list of temps data
     temps_list = []
     
     for station, date, min, max, avg in temp_data:
@@ -137,7 +136,7 @@ def start_end_date(start, end):
     temp_data = session.query(Measurement.station, Measurement.date, func.min(Measurement.tobs), 
                     func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date >= start) & (Measurement.date <= end)).all()
 
-    # Create a dictionary and append list of stations data
+    # Create a dictionary and append list of temps data
     temps_list = []
     
     for station, date, min, max, avg in temp_data:
