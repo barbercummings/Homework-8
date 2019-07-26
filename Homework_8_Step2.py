@@ -19,8 +19,11 @@ Base = automap_base()
 # reflect the tables
 Base.prepare(engine, reflect=True)
 
-# Save reference to the table
+# Save reference to the tables
 Measurement = Base.classes.measurement
+
+Station = Base.classes.station
+
 
 # Create our session (link) from Python to the DB
 session = Session(engine)
@@ -50,6 +53,7 @@ def precipitation():
     """Return a list of precipitation data including the date and precipitation values."""
     
     # Query precipitation data
+    session = Session(engine)
     precip_data = session.query(Measurement.date, Measurement.prcp).\
     filter(Measurement.date >= '2016-08-23').\
     order_by(Measurement.date).all()
@@ -70,7 +74,8 @@ def stations():
     """Return a list of stations and counts in descending order."""
     
     # Query precipitation data
-    stations_desc = session.query(Measurement.station, func.count(Measurement.station)).\
+    session = Session(engine)
+    stations_desc = session.query(Station.name, func.count(Measurement.station)).filter(Measurement.station==Station.station).\
     group_by(Measurement.station).order_by(func.count(Measurement.station).desc()).all()
 
     # Create a dictionary and append list of stations data
@@ -89,7 +94,8 @@ def tobs():
     """Return a list of stations, dates, temps observed for the past year."""
     
     # Query precipitation data
-    tobs_data = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+    session = Session(engine)
+    tobs_data = session.query(Station.name, Measurement.date, Measurement.tobs).filter(Measurement.station==Station.station).\
     filter(Measurement.date >= '2016-08-23').\
     order_by(Measurement.date).all()
 
@@ -110,6 +116,7 @@ def start_date(start):
     """Return tmin, tavg, tmax for all dates greater than or equal to the start date"""
     
     # Query temp data
+    session = Session(engine)
     temp_data = session.query(Measurement.station, Measurement.date, func.min(Measurement.tobs), 
                     func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(Measurement.date >= start).all()
 
@@ -133,6 +140,7 @@ def start_end_date(start, end):
     """Return tmin, tavg, tmax for all dates greater than or equal to the start date and less than or equal to end date"""
     
     # Query temp data
+    session = Session(engine)
     temp_data = session.query(Measurement.station, Measurement.date, func.min(Measurement.tobs), 
                     func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter((Measurement.date >= start) & (Measurement.date <= end)).all()
 
